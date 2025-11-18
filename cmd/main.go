@@ -12,6 +12,7 @@ import (
 	"flag"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"text/template"
 	"time"
@@ -70,8 +71,19 @@ func main() {
 
 	// index.html handler
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if err = indexTemplate.Execute(w, "wss://"+r.Host+"/websocket"); err != nil {
+		// Determine WebSocket protocol based on environment.
+		protocol := "wss://"
+
+		// for localhost, use ws://
+		if strings.HasPrefix(r.Host, "localhost") || strings.HasPrefix(r.Host, "127.0.0.1") {
+			protocol = "ws://"
+		}
+
+		wsURL := protocol + r.Host + "/websocket"
+
+		if err := indexTemplate.Execute(w, wsURL); err != nil {
 			log.Errorf("Failed to parse index template: %v", err)
+			return
 		}
 	})
 
