@@ -1,5 +1,3 @@
-# Voice Chatting
-
 <h1 align="center">
   <a href="https://pion.ly"><img width="640" height="400" alt="Image" src="https://github.com/user-attachments/assets/93b96c83-5695-4117-a768-926c360ca967" /></a>
   <br>
@@ -47,3 +45,77 @@ and demonstrates the following features.
 * Multiple inbound/outbound tracks per PeerConnection
 * No codec restriction per call. You can have H264 and VP8 in the same conference.
 * Support for multiple browsers
+
+---
+
+# Getting Started
+
+## 0. Before Getting Started
+
+### 1. You must open the required UDP ports in the production env.
+
+- EC2 Security Group, for example
+
+### 2. Media transmission in the browser, such as audio, requires HTTPS.
+
+### 3. Nginx configuration is required for proper routing and secure deployment.
+
+### Nginx config (example)
+
+```
+http {
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 3600s;
+    proxy_socket_keepalive on;
+    ...
+}
+
+server {
+    server_name {your-domain};
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+        send_timeout 3600s;
+        proxy_connect_timeout 3600s;
+
+        # Real-time streaming
+        proxy_buffering off;
+
+        # nginx keepalive
+        keepalive_timeout 3600s;
+    }
+
+    https settings # managed by Certbot
+
+}
+```
+
+## 1. Git Clone
+
+```
+git clone https://github.com/johseongeon/VoiceChat
+```
+
+## 2. Build Image
+
+```
+cd VoiceChat
+docker build -t voice_chat .
+```
+
+## 3. Run Container
+
+```
+docker run -d --name voice_chat --network host --restart=always voice_chat
+```
