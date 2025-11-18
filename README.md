@@ -47,6 +47,39 @@ and demonstrates the following features.
 * Support for multiple browsers
 
 ---
+# RTPCodecType
+```golang
+type RTPCodecType int
+
+const (
+	// RTPCodecTypeUnknown is the enum's zero-value.
+	RTPCodecTypeUnknown RTPCodecType = iota
+
+	// RTPCodecTypeAudio indicates this is an audio codec.
+	RTPCodecTypeAudio
+
+	// RTPCodecTypeVideo indicates this is a video codec.
+	RTPCodecTypeVideo
+)
+
+func (t RTPCodecType) String() string {
+	switch t {
+	case RTPCodecTypeAudio:
+		return "audio" //nolint: goconst
+	case RTPCodecTypeVideo:
+		return "video" //nolint: goconst
+	default:
+		return ErrUnknownType.Error()
+	}
+}
+```
+https://github.com/pion/webrtc/blob/v4.1.4/rtpcodec.go#L14
+
+In this project, an audio codec was used for voice chatting.
+
+If you plan to implement real-time video calling like google meet, you will need to use both an audio codec and a video codec.
+
+---
 
 # Getting Started
 
@@ -62,7 +95,7 @@ and demonstrates the following features.
 
 ### Nginx config (example)
 
-```
+```nginx
 http {
     tcp_nopush on;
     tcp_nodelay on;
@@ -103,19 +136,19 @@ server {
 
 ## 1. Git Clone
 
-```
+```cmd
 git clone https://github.com/johseongeon/VoiceChat
 ```
 
-## 2. Build Image
+## 2. Build Docker Image
 
-```
+```cmd
 cd VoiceChat
 docker build -t voice_chat .
 ```
 
-## 3. Run Container
+## 3. Run Docker Container
 
-```
+```cmd
 docker run -d --name voice_chat --network host --restart=always voice_chat
 ```
